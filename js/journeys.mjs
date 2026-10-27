@@ -20,7 +20,7 @@ export function metroTrips(data,profile,leg,day){
  }
  return result.sort((a,b)=>a.departure-b.departure);
 }
-export function planJourney({trains,metro,profile='richard',mode='auto',day,now=new Date(),walk=5,safety=5,access=0,trainId='auto'}){
+export function planJourney({trains,metro,profile='richard',mode='auto',day,now=new Date(),walk=5,safety=5,access=0,trainId='auto',originAccess=0}){
  const clock=parisClock(now),current=day===clock.date,nowSeconds=current?clock.minute*60+now.getUTCSeconds():0;
  const leg=mode==='auto'?(current&&clock.minute>=12*60?'back':'out'):mode;
  const options={profile,leg,day,walk,safety,access,current};
@@ -32,9 +32,10 @@ export function planJourney({trains,metro,profile='richard',mode='auto',day,now=
  if(day<metro.from||day>metro.to)return {...options,error:'metro-date',trains:allTrains};
  const metros=metroTrips(metro,profile,leg,day);
  if(leg==='out'){
-  const candidates=(selected?[selected]:available).map(train=>{const ready=Math.max(nowSeconds,trainSeconds(train,'arrival',day))+walk*60;const next=metros.find(m=>m.departure>=ready);return {train,ready,metro:next}}).filter(x=>x.metro).sort((a,b)=>a.metro.arrival-b.metro.arrival||trainSeconds(a.train,'departure',day)-trainSeconds(b.train,'departure',day));
+  const accessible=available.filter(t=>trainSeconds(t,'departure',day)>=nowSeconds+Math.max(0,originAccess));
+  const candidates=(selected?[selected]:accessible).map(train=>{const ready=Math.max(nowSeconds,trainSeconds(train,'arrival',day))+walk*60;const next=metros.find(m=>m.departure>=ready);return {train,ready,metro:next}}).filter(x=>x.metro).sort((a,b)=>a.metro.arrival-b.metro.arrival||trainSeconds(a.train,'departure',day)-trainSeconds(b.train,'departure',day));
   const best=candidates[0];
-  return {...options,...best,error:best?null:available.length?'no-metro':'no-train',trains:allTrains};
+  return {...options,...best,error:best?null:accessible.length?'no-metro':'no-train',trains:allTrains};
  }
  const ready=nowSeconds+access*60;
  const eligible=metros.filter(m=>m.departure>=ready);
