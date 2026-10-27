@@ -28,24 +28,29 @@ export function currentRoad(day,now=new Date()){
  const active=morning&&enabled,parking=minutes('road-parking',10),buffer=minutes('road-buffer',5),access=roadAccess(route,parking,buffer,+now);
  $('road-locate').disabled=busy;$('road-manual-apply').disabled=busy;
  $('road-reset').hidden=!enabled;
- $('road-status').textContent=busy?message:active&&!access?(message||'Estimation expirée : actualisez votre position ou votre durée.') :active?Math.ceil(route.durationSeconds/60)+' min de route'+(route.distanceMeters?' · '+(route.distanceMeters/1000).toFixed(1)+' km':'')+' + '+buffer+' min de prudence + '+parking+' min de stationnement et accès au quai. Estimation sans trafic routier en direct.':message||'Sans activation, le trajet commence à la gare d’Armentières.';
+ $('road-summary-margins').textContent='+'+buffer+' min prudence · +'+parking+' min parking';
+ $('road-margins-label').textContent='Marges : '+buffer+' min prudence + '+parking+' min parking / quai';
+ $('road-status').textContent=busy?message:active&&!access?(message||'Estimation expirée : recalculez la route.') :active?Math.ceil(route.durationSeconds/60)+' min de route · +'+(parking+buffer)+' min de marges · sans bouchons en direct':message||'Option voiture · matin uniquement';
+
  return {active,blocked:active&&!access,...(access||{})};
 }
 export function initRoad(onChange){
  changed=onChange;
+ try{const settings=JSON.parse(localStorage.getItem('mes-trains-road-margins')||'{}');for(const [id,key] of [['road-parking','parking'],['road-buffer','buffer']])if(Number.isFinite(settings[key])&&settings[key]>=0&&settings[key]<=60)$(id).value=settings[key]}catch{}
+
  $('road-locate').onclick=()=>{
   if(busy)return;const request=++revision;enabled=true;route=null;busy=true;message='Recherche de votre position…';changed();
   const fail=text=>{if(request!==revision)return;busy=false;message=text;changed()};
   if(!navigator.geolocation){fail('Géolocalisation indisponible. Saisissez votre temps de route.');return}
   navigator.geolocation.getCurrentPosition(async position=>{
    if(request!==revision)return;message='Calcul du trajet vers la gare…';changed();
-   try{const result=await fetchRoad(position.coords);if(request!==revision)return;route=result;busy=false;message='';changed()}catch(e){fail(e.message)}
+   try{const result=await fetchRoad(position.coords);if(request!==revision)return;route=result;busy=false;message='';$('road-panel').open=false;changed()}catch(e){fail(e.message)}
   },error=>fail(error.code===1?'Localisation refusée. Saisissez une durée ou autorisez la localisation dans Safari.':'Position indisponible. Réessayez ou saisissez une durée.'),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
  };
  $('road-manual-apply').onclick=()=>{
   const raw=$('road-manual').value,n=Number(raw);if(raw.trim()===''||!Number.isFinite(n)||n<0||n>240){message='Saisissez un temps de route entre 0 et 240 minutes.';changed();return}
-  revision++;busy=false;enabled=true;route={durationSeconds:n*60,checkedAt:Date.now(),source:'manual'};message='';changed();
+  revision++;busy=false;enabled=true;route={durationSeconds:n*60,checkedAt:Date.now(),source:'manual'};message='';$('road-panel').open=false;changed();
  };
  $('road-reset').onclick=()=>{revision++;busy=false;enabled=false;route=null;message='';changed()};
- for(const id of ['road-parking','road-buffer'])$(id).onchange=()=>{$(id).value=minutes(id,id==='road-parking'?10:5);changed()};
+ for(const id of ['road-parking','road-buffer'])$(id).onchange=()=>{$(id).value=minutes(id,id==='road-parking'?10:5);try{localStorage.setItem('mes-trains-road-margins',JSON.stringify({parking:minutes('road-parking',10),buffer:minutes('road-buffer',5)}))}catch{}changed()};
 }

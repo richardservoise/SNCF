@@ -63,9 +63,15 @@ function render(){
    steps.push(step(m.arrival,m.arrival+walk*60,'Correspondance à Lille-Flandres','Quai du métro → quai du train',walk+' min de marche · puis '+Math.floor(result.slack)+' min de marge avant le train','walk'));
    steps.push(step(trainSeconds(t,'departure',day),trainSeconds(t,'arrival',day),'Lille-Flandres → Armentières','TER '+t.number+(t.platform?' · Voie '+t.platform:''),t.realtime?'Horaire SNCF actualisé':'Horaire prévu','train'));
   }
-  html+='<section class="route-card" aria-label="Étapes du parcours"><div class="route-card-title"><h3>Votre parcours</h3><span>'+steps.length+' étapes</span></div><ol class="journey-timeline">'+steps.join('')+'</ol></section>';
+  const glance=(time,type,label,line='')=>'<div class="glance-mode '+type+' '+line+'"><span class="segment-icon">'+icon(type)+'</span><strong>'+hhmm(time)+'</strong><span>'+label+'</span></div>';
+  const connector='<span class="glance-walk">'+icon('walk')+'<span>→</span></span>';
+  const rail=glance(trainSeconds(t,'departure',day),'train','TER '+escape(t.number));
+  const tube=glance(m.departure,'metro',p.line,p.line);
+  html+='<div class="route-glance" role="group" aria-label="Résumé du parcours">'+(result.leg==='out'?(road.active?glance(departure,'car','Voiture')+connector:'')+rail+connector+tube:tube+connector+rail)+'</div>';
+  const routeDetail='<details class="route-card" aria-label="Étapes du parcours"><summary><span>Détail des '+steps.length+' étapes</span><span aria-hidden="true">⌄</span></summary><ol class="journey-timeline">'+steps.join('')+'</ol></details>';
   const currentSeconds=parisClock(now).minute*60+now.getUTCSeconds();const nextDeparture=result.leg==='out'&&t&&trainSeconds(t,'departure',day)>=currentSeconds?departure:m.departure-access*60;const delta=Math.ceil((nextDeparture-currentSeconds)/60);
-  html+='<div class="journey-summary">'+(blocked?'Trajet théorique à revalider':result.current?(delta>0?'Prochain départ dans '+(delta>=60?Math.floor(delta/60)+' h '+String(delta%60).padStart(2,'0'):delta+' min'):'Départ imminent ou déjà effectué · vérifiez le passage'):'Prévision pour le '+escape(day.split('-').reverse().join('/')))+'<span>'+ (result.leg==='out'?'La correspondance se recalcule si l’arrivée du train change.':'Métro et train calculés avec vos marges de marche et de sécurité.')+'</span></div>';
+  html+='<div class="journey-summary">'+(blocked?'Trajet théorique à revalider':result.current?(delta>0?'Départ dans '+(delta>=60?Math.floor(delta/60)+' h '+String(delta%60).padStart(2,'0'):delta+' min'):'Départ imminent ou déjà effectué · vérifiez le passage'):'Prévision pour le '+escape(day.split('-').reverse().join('/')))+'<span>'+ (result.leg==='out'?'La correspondance se recalcule si l’arrivée du train change.':'Métro et train calculés avec vos marges de marche et de sécurité.')+'</span></div>';
+  html+=routeDetail;
  }
  html+='<p class="journey-description">Métro : horaires prévus, pas de position de rame en direct. Trafic indiqué sous votre parcours. Choix parmi vos trains de 06:45–07:45 et 17:00–18:30 : arrivée la plus tôt possible, avec vos marges.</p>';
  $('journey-result').innerHTML=html;

@@ -110,3 +110,5 @@ Version 1.6 : un seul trajet complet gare d’Armentières ↔ Mons Sarts (Richa
 Version 1.7 : charte claire, carte horaire bleu nuit avec départ/arrivée en grands chiffres, parcours distinct en trois étapes avec pictogrammes SVG train, marche et métro. Rouge M2 et jaune M1 préservés. Trafic affiché après le trajet.
 
 Version 1.8 : voiture du matin uniquement, géolocalisation sur demande transmise au serveur public OSRM (sans trafic routier en direct). Position jamais enregistrée par l’app. Estimation valable 15 min, durée manuelle de secours ; parking/accès au quai 10 min et prudence 5 min par défaut. Trains sélectionnés seulement après le temps nécessaire pour rejoindre la gare. Retour inchangé. Le serveur public OSRM ne fournit aucune garantie de disponibilité ; la saisie manuelle reste disponible.
+
+Version 1.9 : écran iPhone compact, horaires et résumé du parcours prioritaires, détails repliés. Paramètres manuels de prudence routière (5 min) et stationnement/accès au quai (10 min), mémorisés localement sans la position.
