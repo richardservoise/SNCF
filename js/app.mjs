@@ -1,6 +1,6 @@
-import {updateJourney,initJourney} from './journey-ui.mjs?v=04f431f3fb21';
-import {selectWatch,watchKey} from './watch.mjs?v=04f431f3fb21';
-import {getTrainData} from './data.mjs?v=04f431f3fb21';
+import {updateJourney,initJourney} from './journey-ui.mjs?v=0786f278bec6';
+import {selectWatch,watchKey} from './watch.mjs?v=0786f278bec6';
+import {getTrainData} from './data.mjs?v=0786f278bec6';
 const $=id=>document.getElementById(id);const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Paris'}).format(new Date());$('date').value=today();let pending=false,seq=0,controller,latestRender,followToday=true;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const time=s=>s?new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit'}).format(new Date(s)):'';
 function renderWatch(data,day,waiting,selected,clockNow){

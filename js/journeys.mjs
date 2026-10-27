@@ -1,4 +1,4 @@
-import {parisClock} from './watch.mjs?v=04f431f3fb21';
+import {parisClock} from './watch.mjs?v=0786f278bec6';
 export const PROFILES={richard:{name:'Richard',line:'M1',station:'Pont de Bois',out:'4 Cantons – Stade Pierre Mauroy',back:'CHU – Eurasanté'},louis:{name:'Louis',line:'M2',station:'Mons Sarts',out:'CH Dron',back:'Saint-Philibert'}};
 export const hhmm=seconds=>{const n=Math.floor(seconds/60);return String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
 const secs=time=>{const [h,m,s=0]=time.split(':').map(Number);return h*3600+m*60+s};

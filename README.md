@@ -97,3 +97,6 @@ Réutilisation des données : consulter les licences et conditions SNCF associé
 Les horaires de train sont affichés directement, sans section repliée. Les cartes « Prochains métros » affichent les trois passages prévus depuis Lille-Flandres à l’aller, ou depuis Pont de Bois (Richard/M1) et Mons Sarts (Louis/M2) au retour. Ces prochains passages sont distincts du métro conseillé pour rejoindre votre train plus tard.
 
 Les boutons Trains, Métros M1 / M2 et Ma correspondance permettent d’accéder directement à chaque section. Les scripts de la version construite portent une révision dans leur URL pour éviter de mélanger d’anciens fichiers en cache avec de nouveaux modules. Le chargement des horaires de train reste indépendant du rendu des correspondances métro.
+
+
+Interface iPhone : sens du trajet et train sélectionnés automatiquement selon l’heure de Paris, sans boutons de sens ni liste déroulante de trains. Richard utilise M1, Louis M2.

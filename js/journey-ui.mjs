@@ -1,16 +1,16 @@
-import {planJourney,metroTrips,PROFILES,hhmm,trainSeconds} from './journeys.mjs?v=04f431f3fb21';
-import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs?v=04f431f3fb21';
-import {parisClock} from './watch.mjs?v=04f431f3fb21';
+import {planJourney,metroTrips,PROFILES,hhmm,trainSeconds} from './journeys.mjs?v=0786f278bec6';
+import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs?v=0786f278bec6';
+import {parisClock} from './watch.mjs?v=0786f278bec6';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatLocalDate=s=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(s));
 const localDate=s=>Number.isFinite(Date.parse(s))?formatLocalDate(s):'date non précisée';
-let profile='richard',mode='auto',trainId='auto',walk=5,safety=5,access=0,latest=null,metro=null,metroPromise,traffic=null,metroError=false;
+const mode='auto',trainId='auto';
+let profile='richard',walk=5,safety=5,access=0,latest=null,metro=null,metroPromise,traffic=null,metroError=false;
 try{const settings=JSON.parse(localStorage.getItem('mes-trains-metro-v2')||'{}');if(PROFILES[settings.profile])profile=settings.profile;for(const [key,assign] of [['walk',v=>walk=v],['safety',v=>safety=v],['access',v=>access=v]])if(Number.isFinite(settings[key])&&settings[key]>=0&&settings[key]<=30)assign(settings[key]);}catch{}
 const save=()=>{try{localStorage.setItem('mes-trains-metro-v2',JSON.stringify({profile,walk,safety,access}))}catch{}};
 function updateControls(){
  document.querySelectorAll('[data-profile]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.profile===profile)));
- document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
  for(const [id,v] of [['walk-margin',walk],['safety-margin',safety],['station-access',access]])$(id).value=v;
 }
 function drawTraffic(){
@@ -45,10 +45,6 @@ function render(){
  const now=new Date(),p=PROFILES[profile];
  const result=planJourney({trains:data.trains,metro,profile,mode,day,now,walk,safety,access,trainId});
  $('journey-mode-label').textContent=(mode==='auto'?'Auto · ':'')+(result.leg==='out'?'Aller du matin':'Retour vers Armentières')+' · '+new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit'}).format(now)+' Paris';
- const options='<option value="auto">Automatique selon l’heure</option>'+result.trains.map(t=>'<option value="'+escape(t.number+'-'+t.departure)+'">'+t.departure+' → '+t.arrival+' · TER '+escape(t.number)+(t.cancelled?' · supprimé':'')+'</option>').join('');
- if($('journey-train').innerHTML!==options)$('journey-train').innerHTML=options;
- $('journey-train').value=trainId;
- $('journey-train-label').textContent=result.leg==='out'?'Train pris (à choisir si vous êtes déjà à bord)':'Train visé pour le retour';
  const blocked=traffic?.[p.line]?.state==='interrupted';
  let html='<div class="journey-heading"><div><span class="journey-kicker">'+escape(p.name)+' · '+(result.current?'TRAJET DU JOUR':'PRÉVISION À LA DATE CHOISIE')+'</span><h2>'+(result.leg==='out'?'Vers '+p.station:p.station+' → Armentières')+'</h2></div><span class="line-badge '+p.line+'">'+p.line+'</span></div>';
  html+='<p class="journey-direction">Métro '+p.line+' · direction '+escape(result.metro?.direction||(result.leg==='out'?p.out:p.back))+'</p>';
@@ -84,9 +80,7 @@ async function loadMetro(){
 export function updateJourney(data,day){latest={data,day};if(!metro)loadMetro();try{render()}catch(error){console.error('Affichage correspondance :',error);$('journey-result').textContent='Le calcul de correspondance est temporairement indisponible. Les horaires de train restent affichés.';}}
 async function refreshTraffic(){try{traffic=await fetchTraffic()}catch{traffic=null}drawTraffic();render();}
 export function initJourney(){
- document.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{profile=b.dataset.profile;trainId='auto';save();render()});
- document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;trainId='auto';render()});
- $('journey-train').onchange=()=>{trainId=$('journey-train').value;render()};
+ document.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{profile=b.dataset.profile;save();render()});
  for(const [id,set] of [['walk-margin',v=>walk=v],['safety-margin',v=>safety=v],['station-access',v=>access=v]])$(id).onchange=()=>{let v=Number($(id).value);if(!Number.isFinite(v))v=5;set(Math.max(0,Math.min(30,v)));save();render()};
  $('refresh').addEventListener('click',()=>{loadMetro();refreshTraffic()});
  updateControls();drawTraffic();loadMetro();refreshTraffic();setInterval(()=>{if(!document.hidden)refreshTraffic()},120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTraffic()});
