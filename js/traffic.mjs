@@ -24,3 +24,11 @@ export async function fetchTraffic(){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
  try{const r=await fetch(TRAFFIC_URL,{signal:controller.signal,cache:'no-store',credentials:'omit'});if(!r.ok)throw Error('Source trafic indisponible');const data=normalizeTraffic(await r.json());cached={fetched:Date.now(),data};return data;}finally{clearTimeout(timer)}
 }
+
+// La couleur décrit les informations reçues, jamais une circulation garantie.
+export function trafficIndicator(state){
+ if(!state||state.state==='old')return {tone:'unknown',label:'État non confirmé',messages:[]};
+ if(state.state==='none')return {tone:'good',label:'Aucun incident signalé',messages:[]};
+ if(state.state==='interrupted'||state.state==='alert')return {tone:'bad',label:state.state==='interrupted'?'Interruption signalée':'Incident ou ralentissement',messages:state.messages.filter(m=>m.recent)};
+ return {tone:'unknown',label:'État non confirmé',messages:[]};
+}

@@ -20,3 +20,7 @@ test('Une interruption de la veille est signalée ancienne, jamais active',()=>{
 test('Interruption récente, message nettoyé et flux périmé',()=>{const payload=trafficPayload('2026-10-27T09:55:00Z','<b>Métro interrompu</b><br/>Info');const d=normalizeTraffic(payload,Date.parse('2026-10-27T10:00:00Z'));assert.equal(d.M1.state,'interrupted');assert.ok(!d.M1.messages[0].text.includes('<'));assert.throws(()=>normalizeTraffic(payload,Date.parse('2026-10-27T10:20:00Z')),/périmé/)});
 
 test('Profils demandés : Richard sur M2, Louis sur M1',()=>{assert.equal(PROFILES.richard.line,'M2');assert.equal(PROFILES.richard.station,'Mons Sarts');assert.equal(PROFILES.louis.name,'Louis');assert.equal(PROFILES.louis.line,'M1');assert.equal(PROFILES.louis.station,'Pont de Bois')});
+
+test('Trajet complet : aucun trajet métro seul après les trains du matin',()=>{assert.equal(plan({now:at('10:00')}).error,'no-train')});
+test('Aller optimal : un train plus tardif peut faire arriver plus tôt',()=>{const p=plan({trains:[{number:'lent',direction:'morning',departure:'07:11',arrival:'07:35'},trains[0]]});assert.equal(p.train.number,'morning');assert.equal(p.metro.id,'a')});
+test('Retour optimal : choisir l’arrivée la plus tôt et partir au dernier métro compatible',()=>{const p=plan({now:at('16:50'),trains:[trains[1],{...trains[2],arrival:'17:25'}]});assert.equal(p.train.number,'t2');assert.equal(p.metro.id,'f')});

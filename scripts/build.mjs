@@ -7,7 +7,7 @@ for(const path of ['index.html','.nojekyll','js','data']) await cp(path,'dist/'+
 const files=(await readdir('js')).filter(f=>f.endsWith('.mjs')).sort();
 const source=(await Promise.all(files.map(f=>readFile('js/'+f,'utf8')))).map(code=>code.replace(/(from\s+['"]\.\/[^'"?]+\.mjs)(?:\?[^'"]*)?(['"])/g,'$1$2'));
 const revision=createHash('sha256').update(source.join('\n')).digest('hex').slice(0,12);
-for(let i=0;i<files.length;i++)await writeFile('dist/js/'+files[i],source[i].replace(/(from\s+['"]\.\/[^'"?]+\.mjs)(?:\?[^'"]*)?(['"])/g,'$1?v='+revision+'$2'));
+for(let i=0;i<files.length;i++)await writeFile('dist/js/'+files[i].replace('.mjs','.'+revision+'.mjs'),source[i].replace(/(from\s+['"]\.\/[^'"?]+)(\.mjs)(?:\?[^'"]*)?(['"])/g,'$1.'+revision+'$2$3'));
 const html=await readFile('dist/index.html','utf8');
-await writeFile('dist/index.html',html.replace(/src="\.\/js\/app\.mjs(?:\?[^" ]*)?"/,'src="./js/app.mjs?v='+revision+'"'));
+await writeFile('dist/index.html',html.replace(/src="\.\/js\/app\.mjs(?:\?[^" ]*)?"/,'src="./js/app.'+revision+'.mjs"'));
 console.log('GitHub Pages prêt : dist/ · révision '+revision);

@@ -102,3 +102,9 @@ Les boutons Trains, Métros M1 / M2 et Ma correspondance permettent d’accéder
 Interface iPhone : sens du trajet et train sélectionnés automatiquement selon l’heure de Paris, sans boutons de sens ni liste déroulante de trains. Richard utilise M2, Louis M1.
 
 Version 1.4 : Richard = M2 / Mons Sarts ; Louis = M1 / Pont de Bois. Aucun bouton Auto, Aller, Retour et aucune liste de trains.
+
+Version 1.5 : M2 rouge Richard / Mons Sarts, M1 jaune Louis / Pont de Bois. Trafic compact : vert si aucune alerte n’est reçue dans un flux frais, rouge et motif visible pour une alerte récente, ambre si l’état n’est pas confirmé. Les anciens messages ne sont pas présentés comme des incidents actuels.
+
+Version 1.6 : un seul trajet complet gare d’Armentières ↔ Mons Sarts (Richard/M2) ou Pont de Bois (Louis/M1), sans listes de départs. Choix automatique matin/retour après midi, arrivée la plus tôt possible parmi les trains des créneaux habituels ; au retour, dernier métro compatible avec les marges. Aucune proposition métro seul quand aucun train n’est disponible.
+
+Version 1.7 : charte claire, carte horaire bleu nuit avec départ/arrivée en grands chiffres, parcours distinct en trois étapes avec pictogrammes SVG train, marche et métro. Rouge M2 et jaune M1 préservés. Trafic affiché après le trajet.

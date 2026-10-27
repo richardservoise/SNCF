@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {trafficIndicator} from '../js/traffic.mjs';
+test('Pas d’alerte : indicateur vert sans détails',()=>{assert.deepEqual(trafficIndicator({state:'none',messages:[]}),{tone:'good',label:'Aucun incident signalé',messages:[]})});
+test('Retard et interruption : rouge, motif récent visible',()=>{for(const state of ['alert','interrupted']){const m={recent:true,text:'Ligne ralentie, défaut de porte'};const view=trafficIndicator({state,messages:[m]});assert.equal(view.tone,'bad');assert.deepEqual(view.messages,[m])}});
+test('Source absente ou ancienne : jamais verte, pas d’ancien motif affiché',()=>{for(const state of [null,{state:'old',messages:[{text:'Ancien incident'}]}]){assert.equal(trafficIndicator(state).tone,'unknown');assert.deepEqual(trafficIndicator(state).messages,[])}});
