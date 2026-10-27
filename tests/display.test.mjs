@@ -11,5 +11,13 @@ test('Trains ouverts et deux listes de métros explicites dans la page',async()=
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.match(html,/<section id="train-list"/);assert.ok(!html.includes('<details class="train-details">'));
  assert.match(html,/id="metro-now-richard"/);assert.match(html,/id="metro-now-louis"/);
- assert.match(html,/Richard · M1/);assert.match(html,/Louis · M2/);
+ assert.match(html,/Richard · M2/);assert.match(html,/Louis · M1/);
+});
+
+test('Interface automatique : aucun bouton de sens et aucune liste de train',async()=>{
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ assert.doesNotMatch(html, /data-mode=|<select|id="journey-train"/);
+ const ui=await readFile(new URL('../js/journey-ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/const mode='auto',trainId='auto'/);
+ assert.doesNotMatch(ui,/\$\('journey-train'\)/);
 });

@@ -4,7 +4,7 @@ Version **100 % statique pour GitHub Pages**, sans serveur privé, sans clé API
 
 - Matin : Armentières → Lille-Flandres, départs de 06:45 à 07:45.
 - Soir : Lille-Flandres → Armentières, départs de 17:00 à 18:30.
-- Deux profils : Richard (M1, Pont de Bois) et Louis (M2, Mons Sarts).
+- Deux profils : Richard (M2, Mons Sarts) et Louis (M1, Pont de Bois).
 - Mode Automatique : aller avant midi, retour après midi, selon l’heure de Paris. Les boutons Aller et Retour permettent de changer manuellement.
 - Correspondance du matin : arrivée du train + marche à Lille-Flandres, puis premier métro prévu accessible. Choisir un train dans le menu si vous êtes déjà à bord ; sinon le mode automatique cherche le prochain départ depuis Armentières.
 - Retour : prochain métro compatible depuis votre station puis train dans le créneau 17:00–18:30, avec marche et sécurité. Si le train est dans plus d’une heure, le métro est choisi plus tard pour éviter une attente excessive en gare. Le choix manuel d’un train propose le dernier métro compatible.
@@ -94,9 +94,11 @@ Réutilisation des données : consulter les licences et conditions SNCF associé
 
 ## Correction de l’affichage
 
-Les horaires de train sont affichés directement, sans section repliée. Les cartes « Prochains métros » affichent les trois passages prévus depuis Lille-Flandres à l’aller, ou depuis Pont de Bois (Richard/M1) et Mons Sarts (Louis/M2) au retour. Ces prochains passages sont distincts du métro conseillé pour rejoindre votre train plus tard.
+Les horaires de train sont affichés directement, sans section repliée. Les cartes « Prochains métros » affichent les trois passages prévus depuis Lille-Flandres à l’aller, ou depuis Pont de Bois (Louis/M1) et Mons Sarts (Richard/M2) au retour. Ces prochains passages sont distincts du métro conseillé pour rejoindre votre train plus tard.
 
 Les boutons Trains, Métros M1 / M2 et Ma correspondance permettent d’accéder directement à chaque section. Les scripts de la version construite portent une révision dans leur URL pour éviter de mélanger d’anciens fichiers en cache avec de nouveaux modules. Le chargement des horaires de train reste indépendant du rendu des correspondances métro.
 
 
-Interface iPhone : sens du trajet et train sélectionnés automatiquement selon l’heure de Paris, sans boutons de sens ni liste déroulante de trains. Richard utilise M1, Louis M2.
+Interface iPhone : sens du trajet et train sélectionnés automatiquement selon l’heure de Paris, sans boutons de sens ni liste déroulante de trains. Richard utilise M2, Louis M1.
+
+Version 1.4 : Richard = M2 / Mons Sarts ; Louis = M1 / Pont de Bois. Aucun bouton Auto, Aller, Retour et aucune liste de trains.

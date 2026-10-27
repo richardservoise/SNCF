@@ -1,6 +1,6 @@
-import {planJourney,metroTrips,PROFILES,hhmm,trainSeconds} from './journeys.mjs?v=0786f278bec6';
-import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs?v=0786f278bec6';
-import {parisClock} from './watch.mjs?v=0786f278bec6';
+import {planJourney,metroTrips,PROFILES,hhmm,trainSeconds} from './journeys.mjs?v=9787e3c64944';
+import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs?v=9787e3c64944';
+import {parisClock} from './watch.mjs?v=9787e3c64944';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatLocalDate=s=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(s));
