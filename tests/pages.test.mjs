@@ -31,7 +31,7 @@ test('GitHub Pages : chemins relatifs, aucun appel au serveur historique',async(
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const app=await readFile(new URL('../js/app.mjs',import.meta.url),'utf8');
  const data=await readFile(new URL('../js/data.mjs',import.meta.url),'utf8');
- assert.match(html,/src="\.\/js\/app.mjs"/);assert.ok(!app.includes('/api/trains'));assert.ok(!app.includes('chatgpt.site'));assert.ok(!app.includes('WATCH_LOGIC'));
+ assert.match(html,/src="\.\/js\/app.mjs(?:\?[^\"]*)?"/);assert.ok(!app.includes('/api/trains'));assert.ok(!app.includes('chatgpt.site'));assert.ok(!app.includes('WATCH_LOGIC'));
  assert.match(data,/new URL\('\.\.\/data\/schedule.json',import.meta.url\)/);
  const scriptUrl=new URL('./js/data.mjs','https://richardservoise.github.io/SNCF/');
  assert.equal(new URL('../data/schedule.json',scriptUrl).href,'https://richardservoise.github.io/SNCF/data/schedule.json');

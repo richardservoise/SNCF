@@ -1,5 +1,5 @@
-import {fetchLive,applyLive} from './realtime.mjs';
-import {parisClock,departureMinute} from './watch.mjs';
+import {fetchLive,applyLive} from './realtime.mjs?v=04f431f3fb21';
+import {parisClock,departureMinute} from './watch.mjs?v=04f431f3fb21';
 let schedulePromise;
 export async function loadSchedule(){
   if(!schedulePromise) schedulePromise=fetch(new URL('../data/schedule.json',import.meta.url),{cache:'no-cache'}).then(async r=>{

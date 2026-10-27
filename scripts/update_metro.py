@@ -14,12 +14,12 @@ def extract(blob):
  ids={r['service_id'] for r in trips.values()}
  for r in rows('calendar_dates.txt'):
   if r['service_id'] in ids and r['exception_type']=='1':services[r['service_id']].append(r['date'])
- groups={k:[] for k in ['richard-out','richard-back','son-out','son-back']}
+ groups={k:[] for k in ['M1-out','M1-back','M2-out','M2-back']}
  seconds=lambda t:sum(int(v)*m for v,m in zip(t.split(':'),(3600,60,1)))
  for tid,st in calls.items():
   if len(st)!=2:continue
   dep,arr=sorted(st,key=lambda r:int(r['stop_sequence']));t=trips[tid]
-  profile='richard' if t['route_id']=='ME2' else 'son'
+  profile='M2' if t['route_id']=='ME2' else 'M1'
   out=dep['stop_id'].startswith('LIG');key=profile+('-out' if out else '-back')
   if not services[t['service_id']]:continue
   groups[key].append([tid,t['service_id'],seconds(dep['departure_time']),seconds(arr['arrival_time']),t['trip_headsign']])

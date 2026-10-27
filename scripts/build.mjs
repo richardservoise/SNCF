@@ -1,6 +1,13 @@
-import {rm,mkdir,cp,readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {rm,mkdir,cp,readFile,readdir,writeFile} from 'node:fs/promises';
 const schedule=JSON.parse(await readFile('data/schedule.json','utf8'));
 if(!schedule.trains?.length) throw Error('Horaires manquants');
 await rm('dist',{recursive:true,force:true});await mkdir('dist');
 for(const path of ['index.html','.nojekyll','js','data']) await cp(path,'dist/'+path,{recursive:true});
-console.log('GitHub Pages prêt : dist/');
+const files=(await readdir('js')).filter(f=>f.endsWith('.mjs')).sort();
+const source=(await Promise.all(files.map(f=>readFile('js/'+f,'utf8')))).map(code=>code.replace(/(from\s+['"]\.\/[^'"?]+\.mjs)(?:\?[^'"]*)?(['"])/g,'$1$2'));
+const revision=createHash('sha256').update(source.join('\n')).digest('hex').slice(0,12);
+for(let i=0;i<files.length;i++)await writeFile('dist/js/'+files[i],source[i].replace(/(from\s+['"]\.\/[^'"?]+\.mjs)(?:\?[^'"]*)?(['"])/g,'$1?v='+revision+'$2'));
+const html=await readFile('dist/index.html','utf8');
+await writeFile('dist/index.html',html.replace(/src="\.\/js\/app\.mjs(?:\?[^" ]*)?"/,'src="./js/app.mjs?v='+revision+'"'));
+console.log('GitHub Pages prêt : dist/ · révision '+revision);

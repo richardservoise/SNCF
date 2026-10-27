@@ -1,13 +1,13 @@
-import {planJourney,PROFILES,hhmm,trainSeconds} from './journeys.mjs';
-import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs';
-import {parisClock} from './watch.mjs';
+import {planJourney,metroTrips,PROFILES,hhmm,trainSeconds} from './journeys.mjs?v=04f431f3fb21';
+import {fetchTraffic,TRAFFIC_OFFICIAL} from './traffic.mjs?v=04f431f3fb21';
+import {parisClock} from './watch.mjs?v=04f431f3fb21';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatLocalDate=s=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(s));
 const localDate=s=>Number.isFinite(Date.parse(s))?formatLocalDate(s):'date non précisée';
 let profile='richard',mode='auto',trainId='auto',walk=5,safety=5,access=0,latest=null,metro=null,metroPromise,traffic=null,metroError=false;
-try{const settings=JSON.parse(localStorage.getItem('mes-trains-metro')||'{}');if(PROFILES[settings.profile])profile=settings.profile;for(const [key,assign] of [['walk',v=>walk=v],['safety',v=>safety=v],['access',v=>access=v]])if(Number.isFinite(settings[key])&&settings[key]>=0&&settings[key]<=30)assign(settings[key]);}catch{}
-const save=()=>{try{localStorage.setItem('mes-trains-metro',JSON.stringify({profile,walk,safety,access}))}catch{}};
+try{const settings=JSON.parse(localStorage.getItem('mes-trains-metro-v2')||'{}');if(PROFILES[settings.profile])profile=settings.profile;for(const [key,assign] of [['walk',v=>walk=v],['safety',v=>safety=v],['access',v=>access=v]])if(Number.isFinite(settings[key])&&settings[key]>=0&&settings[key]<=30)assign(settings[key]);}catch{}
+const save=()=>{try{localStorage.setItem('mes-trains-metro-v2',JSON.stringify({profile,walk,safety,access}))}catch{}};
 function updateControls(){
  document.querySelectorAll('[data-profile]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.profile===profile)));
  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
@@ -21,9 +21,26 @@ function drawTraffic(){
 }
 const step=(time,title,detail,kind='')=>'<li class="journey-step"><span class="step-time">'+escape(time)+'</span><div class="step-copy"><strong>'+escape(title)+'</strong><span>'+escape(detail)+'</span>'+(kind?'<em>'+escape(kind)+'</em>':'')+'</div></li>';
 function errorTitle(code){return ({'train-cancelled':'Ce train est supprimé.','train-missing':'Ce train n’est pas disponible à cette date.','metro-date':'Pas d’horaires métro pour cette date.','no-metro':'Plus de métro prévu pour ce trajet aujourd’hui.','missed-connection':'Ce train n’est plus atteignable avec vos marges.','no-train':'Plus de correspondance dans vos créneaux de train.'})[code]||'Correspondance indisponible.'}
+function renderMetroDepartures(day,now){
+ const clock=parisClock(now),current=day===clock.date;
+ const leg=mode==='auto'?(current&&clock.minute>=12*60?'back':'out'):mode;
+ const threshold=current?clock.minute*60+now.getUTCSeconds()+(leg==='back'?access*60:0):0;
+ $('metro-list-context').textContent=current?'Prochains passages prévus à partir de maintenant · la correspondance avec le train est calculée séparément ci-dessous.':'Passages prévus à la date choisie · sélectionnez Aujourd’hui pour voir les prochains départs.';
+ for(const key of ['richard','louis']){const p=PROFILES[key],target=$('metro-now-'+key);
+  target.className='metro-now-card'+(key===profile?' selected':'');
+  let html='<h3><span class="line-badge '+p.line+'">'+p.line+'</span> '+p.name+'</h3><p>'+(leg==='out'?'Lille-Flandres → '+p.station:p.station+' → Lille-Flandres')+'</p>';
+  if(!metro){target.innerHTML=html+'<p>'+(metroError?'Horaires métro indisponibles. Cliquez sur Actualiser.':'Chargement des horaires prévus…')+'</p>';continue}
+  if(day<metro.from||day>metro.to){target.innerHTML=html+'<p>Pas de données métro pour cette date.</p>';continue}
+  const next=metroTrips(metro,key,leg,day).filter(m=>m.departure>=threshold).slice(0,3);
+  html+='<p>Direction '+escape(next[0]?.direction||(leg==='out'?p.out:p.back))+'</p>';
+  html+=next.length?'<ul class="metro-now-list">'+next.map(m=>{const minutes=Math.ceil((m.departure-clock.minute*60-now.getUTCSeconds())/60);return '<li><time>'+hhmm(m.departure)+'</time><span>'+(current?(minutes<=0?'Imminent':minutes+' min'):'Prévu')+'</span></li>'}).join('')+'</ul>':'<p>Aucun autre passage prévu aujourd’hui dans ce sens.</p>';
+  html+='<p>Horaires prévus Ilévia · ne confirme pas la circulation en cas de perturbation.</p><a href="'+TRAFFIC_OFFICIAL+'" target="_blank" rel="noopener">Vérifier le trafic ↗</a>';
+  target.innerHTML=html;
+ }
+}
 function render(){
  if(!latest)return;
- const {data,day}=latest;updateControls();
+ const {data,day}=latest;updateControls();renderMetroDepartures(day,new Date());
  if(!metro){$('journey-result').innerHTML='<p>'+(metroError?'Impossible de charger les horaires Ilévia. Utilisez Actualiser pour réessayer.':'Chargement des horaires métro officiels…')+'</p>';return}
  const now=new Date(),p=PROFILES[profile];
  const result=planJourney({trains:data.trains,metro,profile,mode,day,now,walk,safety,access,trainId});
@@ -64,7 +81,7 @@ async function loadMetro(){
  if(!metroPromise)metroPromise=fetch(new URL('../data/metro.json',import.meta.url),{cache:'no-cache'}).then(async r=>{if(!r.ok)throw Error();const d=await r.json();if(!d.groups||!d.services)throw Error();metro=d;metroError=false;render();return d}).catch(()=>{metroError=true;metroPromise=null;render()});
  return metroPromise;
 }
-export function updateJourney(data,day){latest={data,day};if(!metro)loadMetro();render();}
+export function updateJourney(data,day){latest={data,day};if(!metro)loadMetro();try{render()}catch(error){console.error('Affichage correspondance :',error);$('journey-result').textContent='Le calcul de correspondance est temporairement indisponible. Les horaires de train restent affichés.';}}
 async function refreshTraffic(){try{traffic=await fetchTraffic()}catch{traffic=null}drawTraffic();render();}
 export function initJourney(){
  document.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{profile=b.dataset.profile;trainId='auto';save();render()});

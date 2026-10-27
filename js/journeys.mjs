@@ -1,5 +1,5 @@
-import {parisClock} from './watch.mjs';
-export const PROFILES={richard:{name:'Richard',line:'M2',station:'Mons Sarts',out:'CH Dron',back:'Saint-Philibert'},son:{name:'Mon fils',line:'M1',station:'Pont de Bois',out:'4 Cantons – Stade Pierre Mauroy',back:'CHU – Eurasanté'}};
+import {parisClock} from './watch.mjs?v=04f431f3fb21';
+export const PROFILES={richard:{name:'Richard',line:'M1',station:'Pont de Bois',out:'4 Cantons – Stade Pierre Mauroy',back:'CHU – Eurasanté'},louis:{name:'Louis',line:'M2',station:'Mons Sarts',out:'CH Dron',back:'Saint-Philibert'}};
 export const hhmm=seconds=>{const n=Math.floor(seconds/60);return String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
 const secs=time=>{const [h,m,s=0]=time.split(':').map(Number);return h*3600+m*60+s};
 export function trainSeconds(train,kind,day){
@@ -12,7 +12,9 @@ export function metroTrips(data,profile,leg,day){
  const currentServices=new Set(Object.keys(data.services).filter(s=>data.services[s].includes(dateKey)));
  const previousServices=new Set(Object.keys(data.services).filter(s=>data.services[s].includes(previous)));
  const result=[];
- for(const [id,service,departure,arrival,direction] of data.groups[profile+'-'+leg]||[]){
+ const line=PROFILES[profile]?.line;if(!line)return [];
+ const legacy=line==='M1'?'son':'richard';
+ for(const [id,service,departure,arrival,direction] of data.groups[line+'-'+leg]||data.groups[legacy+'-'+leg]||[]){
   if(currentServices.has(service)&&departure<86400)result.push({id,departure,arrival,direction});
   if(previousServices.has(service)&&departure>=86400)result.push({id,departure:departure-86400,arrival:arrival-86400,direction});
  }
